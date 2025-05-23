@@ -17,9 +17,8 @@ class CartItem {
     required this.subcategory,
     required this.price,
     required this.quantity,
-    
     this.imageUrl,
-    this.description
+    this.description,
   }) : id = id ?? const Uuid().v4();
 
   CartItem copyWith({
@@ -33,7 +32,35 @@ class CartItem {
       price: price,
       quantity: quantity ?? this.quantity,
       imageUrl: imageUrl,
-      description: description
+      description: description,
+    );
+  }
+
+  
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'category': category,
+      'subcategory': subcategory,
+      'price': price,
+      'quantity': quantity,
+      'imageUrl': imageUrl,
+      'description': description,
+    };
+  }
+
+  /// ✅ Для загрузки из shared_preferences
+  factory CartItem.fromJson(Map<String, dynamic> json) {
+    return CartItem(
+      id: json['id'],
+      name: json['name'],
+      category: json['category'],
+      subcategory: json['subcategory'],
+      price: json['price'],
+      quantity: json['quantity'],
+      imageUrl: json['imageUrl'],
+      description: json['description'],
     );
   }
 }

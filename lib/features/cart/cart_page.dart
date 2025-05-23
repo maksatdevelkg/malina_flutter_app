@@ -1,9 +1,9 @@
-// cart_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:malina_flutter_app/core/theme/app_colors.dart';
-import 'package:malina_flutter_app/features/add_product/add_product_page.dart';
-import 'package:malina_flutter_app/features/cart/providers/cart_provider.dart';
+import 'providers/cart_provider.dart';
 import 'sections/food_cart_section.dart';
 import 'sections/beauty_cart_section.dart';
 
@@ -16,6 +16,7 @@ class CartPage extends ConsumerStatefulWidget {
 
 class _CartPageState extends ConsumerState<CartPage> {
   int _selectedCategory = 0;
+  
 
   @override
   Widget build(BuildContext context) {
@@ -33,16 +34,16 @@ class _CartPageState extends ConsumerState<CartPage> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          MaterialPageRoute(
-            builder: (context) => AddProductPage(
-              initialCategory: _selectedCategory == 0 ? 'Еда' : 'Бьюти',
-            ),
-          );
-        },
-        backgroundColor: Color.fromARGB(255, 211, 208, 209),
-        child: const Icon(Icons.add, color: Colors.white),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 60),
+        child: FloatingActionButton(
+          onPressed: () {
+            context.push(
+                '/add-product/${_selectedCategory == 0 ? 'Еда' : 'Бьюти'}');
+          },
+          backgroundColor: Color.fromARGB(255, 211, 208, 209),
+          child: const Icon(Icons.add, color: Colors.white),
+        ),
       ),
     );
   }

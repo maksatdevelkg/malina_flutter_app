@@ -53,7 +53,6 @@ class CartItemCard extends ConsumerWidget {
                           color: Colors.grey)
                       : null,
                 ),
-
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
@@ -64,6 +63,12 @@ class CartItemCard extends ConsumerWidget {
                           Text(item.name,
                               style: const TextStyle(
                                   fontSize: 16, fontWeight: FontWeight.w600)),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Text('${item.price} C',
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w600))
                         ],
                       ),
                       if (item.description != null)
@@ -106,35 +111,9 @@ class CartItemCard extends ConsumerWidget {
                     ],
                   ),
                 ),
-                // Text('${item.price} C',
-                //     style: const TextStyle(
-                //         fontSize: 16, fontWeight: FontWeight.bold)),
               ],
             ),
             const SizedBox(height: 16),
-            // Container(
-            //   height: 70,
-            //   child: AppButton(
-            //     onPressed: () {},
-            //     title: '${item.price} C',
-            //   ),
-            // )
-            // Container(
-            //   height: 48,
-            //   decoration: BoxDecoration(
-            //     borderRadius: BorderRadius.circular(12),
-            //     border: Border.all(color: const Color(0xFFDEDEDE)),
-            //   ),
-            //   padding: const EdgeInsets.symmetric(horizontal: 12),
-            //   alignment: Alignment.centerLeft,
-            //   child: const Row(
-            //     children: [
-            //       Icon(Icons.add, color: Colors.green),
-            //       SizedBox(width: 8),
-            //       Text('Добавки', style: TextStyle(fontSize: 15)),
-            //     ],
-            //   ),
-            // ),
           ],
         ),
       ),

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:malina_flutter_app/common/app_button.dart';
+import 'package:malina_flutter_app/core/theme/app_colors.dart';
+import 'package:malina_flutter_app/core/theme/gap.dart';
 import 'package:malina_flutter_app/features/cart/domain/models/cart_item.dart';
 import 'package:malina_flutter_app/features/cart/providers/cart_provider.dart';
 import 'package:uuid/uuid.dart';
@@ -59,7 +62,10 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Добавить'),
+        title: const Text(
+          'Добавить',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+        ),
         actions: [
           TextButton(
             onPressed: () {},
@@ -67,39 +73,38 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
           )
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              _buildTextField(_categoryController, 'Категория'),
-              const SizedBox(height: 12),
-              _buildTextField(_subcategoryController, 'Подкатегория'),
-              const SizedBox(height: 12),
-              _buildTextField(_nameController, 'Название'),
-              const SizedBox(height: 12),
-              _buildTextField(_priceController, 'Цена', isNumber: true),
-              const SizedBox(height: 12),
-              _buildTextField(_descriptionController, 'Описание', maxLines: 4),
-              const SizedBox(height: 24),
-              SizedBox(
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _saveProduct,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF93E66),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child:
-                      const Text('Сохранить', style: TextStyle(fontSize: 16)),
-                ),
-              ),
-            ],
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 12, bottom: 10),
+            child: Image.asset(
+              'assets/images/bill_background.png',
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                children: [
+                  _buildTextField(_categoryController, 'Категория'),
+                  Gap.h24,
+                  _buildTextField(_subcategoryController, 'Подкатегория'),
+                  Gap.h24,
+                  _buildTextField(_nameController, 'Название'),
+                  Gap.h24,
+                  _buildTextField(_priceController, 'Цена', isNumber: true),
+                  Gap.h24,
+                  _buildTextField(_descriptionController, 'Описание',
+                      maxLines: 8),
+                  Gap.h24,
+                  AppButton(onPressed: _saveProduct, title: 'Сохранить')
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -113,9 +118,9 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
       decoration: InputDecoration(
         labelText: label,
         filled: true,
-        fillColor: const Color(0xFFFFF1F4),
+        fillColor: AppColors.addProductColor,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(4),
         ),
       ),
       validator: (value) =>

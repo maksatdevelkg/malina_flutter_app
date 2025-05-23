@@ -18,36 +18,18 @@ class _BeautyCartSectionState extends ConsumerState<BeautyCartSection> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      ref.read(cartProvider.notifier).loadInitialItems([
+      ref.read(cartProvider.notifier).loadInitialItemsIfEmpty([
         CartItem(
           id: const Uuid().v4(),
-          name: 'HADAT COSMETICS 1900',
+          name: 'HADAT COSMETICS',
           price: 1900,
           quantity: 1,
-          category: 'Бьюти',
+          category: 'beauty',
           subcategory: 'Hair',
           description:
               'Шампунь восстанавливающий Hydro Intensive Repair 250 мл',
           imageUrl: 'assets/images/cart_image.png',
         ),
-        CartItem(
-            id: const Uuid().v4(),
-            name: 'HADAT COSMETICS 2000',
-            price: 2000,
-            quantity: 1,
-            category: 'Бьюти',
-            subcategory: 'Hair',
-            description: 'Увлажняющий кондиционер 150 мл',
-            imageUrl: 'assets/images/cart_image.png'),
-        CartItem(
-            id: const Uuid().v4(),
-            name: "L'Oreal Paris Elseve 600",
-            price: 600,
-            quantity: 1,
-            category: 'Бьюти',
-            subcategory: 'Preen Beauty',
-            description: 'Шампунь для ослабленных волос',
-            imageUrl: 'assets/images/cart_image.png'),
       ]);
     });
   }
@@ -55,10 +37,14 @@ class _BeautyCartSectionState extends ConsumerState<BeautyCartSection> {
   @override
   Widget build(BuildContext context) {
     final cartItems = ref.watch(cartProvider);
-    final filteredItems =
-        cartItems.where((item) => item.category == 'Бьюти').toList();
+    final filteredItems = cartItems
+        .where((item) => item.category.toLowerCase() == 'beauty')
+        .toList();
     final subcategories =
         filteredItems.map((e) => e.subcategory).toSet().toList();
+
+    print('Вся корзина: $cartItems');
+    print('Бьюти товары: $filteredItems');
 
     if (filteredItems.isEmpty) {
       return const Center(child: Text('Корзина с товарами для быта пуста'));

@@ -17,26 +17,28 @@ class _FoodCartSectionState extends ConsumerState<FoodCartSection> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      ref.read(cartProvider.notifier).loadInitialItems([
-        CartItem(
-          id: const Uuid().v4(),
-          name: 'Том Ям 250 С',
-          imageUrl: 'assets/images/food_image.png',
-          price: 250,
-          quantity: 1,
-          category: 'Еда',
-          subcategory: 'Bellagio Coffee',
-          description: 'Пицца с соусом том ям 230 гр',
-        ),
-      ]);
+      final currentCart = ref.read(cartProvider);
+      if (currentCart.isEmpty) {
+        ref.read(cartProvider.notifier).addItem(CartItem(
+              id: const Uuid().v4(),
+              name: 'Том Ям 250 С',
+              price: 250,
+              quantity: 1,
+              category: 'food',
+              subcategory: '',
+              description: 'Пицца с соусом Тоя Ям',
+              imageUrl: 'assets/images/cart_image.png',
+            ));
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final cartItems = ref.watch(cartProvider);
-    final filteredItems =
-        cartItems.where((item) => item.category == 'Еда').toList();
+    final filteredItems = cartItems
+        .where((item) => item.category.toLowerCase() == 'food')
+        .toList();
     final subcategories =
         filteredItems.map((e) => e.subcategory).toSet().toList();
 
