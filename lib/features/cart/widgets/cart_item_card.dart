@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:malina_flutter_app/common/app_button.dart';
 import 'package:malina_flutter_app/features/cart/domain/models/cart_item.dart';
 import 'package:malina_flutter_app/features/cart/providers/cart_provider.dart';
 

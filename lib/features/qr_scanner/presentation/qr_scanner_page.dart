@@ -23,7 +23,7 @@ class _QrScannerPageState extends ConsumerState<QrScannerPage> {
     super.dispose();
   }
 
-  void _handleQrCode(Barcode scanData) {
+  Future<void> _handleQrCode(Barcode scanData) async {
     final code = scanData.code;
     if (code == null || isProcessing) return;
     isProcessing = true;
@@ -31,7 +31,7 @@ class _QrScannerPageState extends ConsumerState<QrScannerPage> {
 
     final parts = code.split('/');
     if (parts.length < 5) {
-      showModalBottomSheet(
+      await showModalBottomSheet(
         context: context,
         builder: (_) => Padding(
           padding: const EdgeInsets.all(16),
@@ -46,8 +46,6 @@ class _QrScannerPageState extends ConsumerState<QrScannerPage> {
               ElevatedButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  controller?.resumeCamera();
-                  isProcessing = false;
                 },
                 child: const Text('Сканировать снова'),
               ),
@@ -55,6 +53,8 @@ class _QrScannerPageState extends ConsumerState<QrScannerPage> {
           ),
         ),
       );
+      controller?.resumeCamera();
+      setState(() => isProcessing = false);
       return;
     }
 
@@ -71,24 +71,39 @@ class _QrScannerPageState extends ConsumerState<QrScannerPage> {
       price: price,
       quantity: 1,
       description: description,
-      imageUrl: _getImageForSubcategory(subcategory),
+      imageUrl: _getImageBySubcategoryAndName(subcategory, name),
     );
 
     setState(() => scannedItem = item);
   }
 
-  String _getImageForSubcategory(String subcategory) {
-    switch (subcategory.toLowerCase()) {
-      case 'pizza':
-        return 'assets/images/pizza_image.png';
-      case 'tea':
-        return 'assets/images/tea_image.png';
-      case 'hot':
-        return 'assets/images/hot_food.png';
-      default:
-        return 'assets/images/default_image.png';
-    }
+ 
+
+String _getImageBySubcategoryAndName(String subcategory, String name) {
+  final sub = subcategory.toLowerCase();
+  final lowerName = name.toLowerCase();
+
+  // 🎯 Ищем сочетание: tea + hot / tea + cold
+  if (lowerName.contains('tea') && sub.contains('hot')) {
+    return 'assets/images/tea_image.png';
   }
+
+  if (lowerName.contains('tea') && sub.contains('cold')) {
+    return 'assets/images/cold_tea_image.png';
+  }
+
+  if (lowerName.contains('pizza')) return 'assets/images/pizza_image.png';
+
+  // fallback по подкатегории
+  if (sub.contains('hot')) return 'assets/images/hot_food.png';
+  if (sub.contains('cold')) return 'assets/images/cold_food.png';
+  if (sub.contains('shampoo')) return 'assets/images/shampoo_image.png';
+
+
+  return 'assets/images/default_image.png';
+}
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -154,10 +169,11 @@ class _QrScannerPageState extends ConsumerState<QrScannerPage> {
                         ClipRRect(
                           borderRadius: BorderRadius.circular(12),
                           child: Image.asset(
-                            scannedItem!.imageUrl ?? 'assets/images/default_image.png',
+                            scannedItem?.imageUrl ?? 'assets/images/default_image.png',
                             width: 60,
                             height: 60,
                             fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -165,16 +181,16 @@ class _QrScannerPageState extends ConsumerState<QrScannerPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(scannedItem!.name,
+                              Text(scannedItem?.name ?? '',
                                   style: const TextStyle(
                                       fontSize: 16, fontWeight: FontWeight.bold)),
-                              Text(scannedItem!.description ?? '',
+                              Text(scannedItem?.description ?? '',
                                   style: const TextStyle(
                                       fontSize: 13, color: Colors.grey)),
                             ],
                           ),
                         ),
-                        Text('${scannedItem!.price} C',
+                        Text('${scannedItem?.price ?? 0} C',
                             style: const TextStyle(fontWeight: FontWeight.bold)),
                       ],
                     ),
@@ -189,13 +205,17 @@ class _QrScannerPageState extends ConsumerState<QrScannerPage> {
                           ),
                         ),
                         onPressed: () {
-                          ref.read(cartProvider.notifier).addItem(scannedItem!);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('«${scannedItem!.name}» добавлен в корзину')),
-                          );
-                          setState(() => scannedItem = null);
+                          if (scannedItem != null) {
+                            ref.read(cartProvider.notifier).addItem(scannedItem!);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('«${scannedItem!.name}» добавлен в корзину')),
+                            );
+                          }
+                          setState(() {
+                            scannedItem = null;
+                            isProcessing = false;
+                          });
                           controller?.resumeCamera();
-                          isProcessing = false;
                         },
                         child: const Text('Добавить', style: TextStyle(color: Colors.white)),
                       ),

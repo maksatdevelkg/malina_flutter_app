@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:malina_flutter_app/common/app_button.dart';
 import 'package:malina_flutter_app/features/cart/domain/models/cart_item.dart';
 import 'package:malina_flutter_app/features/cart/providers/cart_provider.dart';
 import 'package:malina_flutter_app/features/cart/widgets/cart_item_card.dart';
@@ -55,14 +56,35 @@ class _FoodCartSectionState extends ConsumerState<FoodCartSection> {
               final items = filteredItems
                   .where((item) => item.subcategory == subcategory)
                   .toList();
+              final subtotal = items.fold(
+                  0, (sum, item) => sum + item.price * item.quantity);
+
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(subcategory,
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold)),
+                  Text(
+                    subcategory,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 8),
-                  ...items.map((item) => CartItemCard(item: item)).toList(),
+                  ...items.map((item) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: CartItemCard(item: item),
+                      )),
+                  Container(
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: AppButton(
+                          onPressed: () {}, title: 'Всего: $subtotal C')),
+                  const SizedBox(height: 16),
                 ],
               );
             }).toList(),

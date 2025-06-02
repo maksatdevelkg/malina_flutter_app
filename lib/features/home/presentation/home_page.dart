@@ -41,7 +41,7 @@ class HomePage extends StatelessWidget {
                   _buildSoonCard('Маркет'),
                   _buildSoonCard('Цветы'),
                   _buildSoonCard('Подарки'),
-                  _buildSoonCard(''),
+                  _buildSoonCard('Финансы'),
                   _buildSoonCard('Книги'),
                 ],
               ),
@@ -49,7 +49,6 @@ class HomePage extends StatelessWidget {
           ],
         ),
       ),
-     
     );
   }
 
