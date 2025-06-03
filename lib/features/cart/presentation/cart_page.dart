@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:malina_flutter_app/core/theme/app_colors.dart';
-import 'providers/cart_provider.dart';
-import 'sections/food_cart_section.dart';
-import 'sections/beauty_cart_section.dart';
+import '../providers/cart_provider.dart';
+import '../sections/food_cart_section.dart';
+import '../sections/beauty_cart_section.dart';
 
 class CartPage extends ConsumerStatefulWidget {
   const CartPage({super.key});

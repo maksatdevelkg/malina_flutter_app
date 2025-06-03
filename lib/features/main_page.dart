@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:malina_flutter_app/core/theme/app_colors.dart';
-import 'package:malina_flutter_app/features/cart/cart_page.dart';
+import 'package:malina_flutter_app/features/cart/presentation/cart_page.dart';
 import 'package:malina_flutter_app/features/cart/providers/cart_provider.dart';
 import 'package:malina_flutter_app/features/home/presentation/home_page.dart';
 
