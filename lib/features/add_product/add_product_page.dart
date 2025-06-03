@@ -5,6 +5,7 @@ import 'package:malina_flutter_app/core/theme/app_colors.dart';
 import 'package:malina_flutter_app/core/theme/gap.dart';
 import 'package:malina_flutter_app/features/cart/domain/models/cart_item.dart';
 import 'package:malina_flutter_app/features/cart/providers/cart_provider.dart';
+import 'package:malina_flutter_app/features/qr_scanner/presentation/qr_scanner_page.dart';
 import 'package:uuid/uuid.dart';
 
 class AddProductPage extends ConsumerStatefulWidget {
@@ -69,24 +70,31 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
         actions: [
           TextButton(
             onPressed: () {},
-            child: const Text('Сканировать'),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => QrScannerPage()));
+              },
+              child: const Text(
+                'Сканировать',
+                style: TextStyle(color: Color(0xff1D1D1D), fontSize: 14),
+              ),
+            ),
           )
         ],
       ),
       body: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 12, bottom: 10),
-            child: Image.asset(
-              'assets/images/bill_background.png',
-              fit: BoxFit.cover,
-            ),
+            padding: const EdgeInsets.only(left: 10, right: 10),
+            child: Container(
+                width: 380, height: 750, child: PinkBackgroundPainter()),
           ),
-          Padding(
+          SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Form(
               key: _formKey,
-              child: ListView(
+              child: Column(
                 children: [
                   _buildTextField(_categoryController, 'Категория'),
                   Gap.h24,
@@ -99,11 +107,11 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
                   _buildTextField(_descriptionController, 'Описание',
                       maxLines: 8),
                   Gap.h24,
-                  AppButton(onPressed: _saveProduct, title: 'Сохранить')
+                  AppButton(onPressed: _saveProduct, title: 'Сохранить'),
                 ],
               ),
             ),
-          ),
+          )
         ],
       ),
     );
@@ -127,4 +135,62 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
           (value == null || value.trim().isEmpty) ? 'Обязательное поле' : null,
     );
   }
+}
+
+class PinkBackgroundPainter extends StatelessWidget {
+  const PinkBackgroundPainter({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      painter: ReceiptPainter(),
+      child: Container(
+        width: double.infinity,
+        height: 400,
+        padding: const EdgeInsets.all(20),
+      ),
+    );
+  }
+}
+
+class ReceiptPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xffFFECEC)
+      ..style = PaintingStyle.fill;
+
+    final path = Path();
+
+    // Верхняя часть с закруглениями
+    path.moveTo(0, 20);
+    path.quadraticBezierTo(0, 0, 20, 0);
+    path.lineTo(size.width - 20, 0);
+    path.quadraticBezierTo(size.width, 0, size.width, 20);
+
+    // Боковые стороны
+    path.lineTo(size.width, size.height - 80);
+
+    // Волнистый низ
+    const waveHeight = 50.0;
+    const waveWidth = 80.0;
+
+    for (double i = size.width; i > 0; i -= waveWidth) {
+      path.quadraticBezierTo(
+        i - waveWidth / 2,
+        size.height + waveHeight,
+        i - waveWidth,
+        size.height - 50,
+      );
+    }
+
+    // Закрываем контур
+    path.lineTo(0, size.height - 40);
+    path.close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
