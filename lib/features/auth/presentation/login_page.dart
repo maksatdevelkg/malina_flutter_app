@@ -33,7 +33,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     setState(() {
       if (email.isEmpty) {
         _emailError = 'Введите почту';
-      } else if (!email.contains('@')) {
+      } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
         _emailError = 'Неверный формат почты';
       } else {
         _emailError = null;
