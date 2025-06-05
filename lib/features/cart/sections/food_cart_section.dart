@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:malina_flutter_app/common/app_button.dart';
+import 'package:malina_flutter_app/core/theme/app_colors.dart';
 import 'package:malina_flutter_app/features/cart/domain/models/cart_item.dart';
 import 'package:malina_flutter_app/features/cart/providers/cart_provider.dart';
 import 'package:malina_flutter_app/features/cart/widgets/cart_item_card.dart';
@@ -62,62 +63,16 @@ class _FoodCartSectionState extends ConsumerState<FoodCartSection> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    subcategory,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
                   const SizedBox(height: 8),
                   ...items.map((item) => Padding(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: CartItemCard(item: item),
                       )),
-                  Container(
-                      alignment: Alignment.centerRight,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8, horizontal: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: AppButton(
-                          onPressed: () {}, title: 'Всего: $subtotal C')),
+                
                   const SizedBox(height: 16),
                 ],
               );
             }).toList(),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Container(
-            height: 50,
-            decoration: BoxDecoration(
-              color: Color(0xFFF93E66),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Всего',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  '${filteredItems.fold(0, (sum, item) => sum + item.price * item.quantity)} C',
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
           ),
         ),
       ],

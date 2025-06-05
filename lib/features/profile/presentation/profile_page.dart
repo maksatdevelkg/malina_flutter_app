@@ -15,6 +15,10 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new), // ваша кастомная иконка
+          onPressed: () => Navigator.pop(context),
+        ),
         title: const Text('Профиль'),
         actions: [
           TextButton(

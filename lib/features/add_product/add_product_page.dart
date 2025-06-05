@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:malina_flutter_app/common/app_button.dart';
+import 'package:malina_flutter_app/core/text_style/app_text_style.dart';
 import 'package:malina_flutter_app/core/theme/app_colors.dart';
 import 'package:malina_flutter_app/core/theme/gap.dart';
 import 'package:malina_flutter_app/features/cart/domain/models/cart_item.dart';
@@ -24,6 +25,11 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
   final _nameController = TextEditingController();
   final _priceController = TextEditingController();
   final _descriptionController = TextEditingController();
+
+  final Map<String, String> categoryOptions = {
+    'Еда': 'food',
+    'Бьюти': 'beauty',
+  };
 
   @override
   void initState() {
@@ -63,10 +69,11 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Добавить',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new), // ваша кастомная иконка
+          onPressed: () => Navigator.pop(context),
         ),
+        title: Text('Добавить', style: AppTextStyle.s20w700),
         actions: [
           TextButton(
             onPressed: () {},
@@ -96,7 +103,34 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
               key: _formKey,
               child: Column(
                 children: [
-                  _buildTextField(_categoryController, 'Категория'),
+                  DropdownButtonFormField<String>(
+                    value: categoryOptions.entries
+                        .firstWhere((e) => e.value == _categoryController.text,
+                            orElse: () => const MapEntry('Еда', 'food'))
+                        .key,
+                    decoration: InputDecoration(
+                      labelText: 'Категория',
+                      filled: true,
+                      fillColor: AppColors.addProductColor,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    items: categoryOptions.keys.map((label) {
+                      return DropdownMenuItem<String>(
+                        value: label,
+                        child: Text(label),
+                      );
+                    }).toList(),
+                    onChanged: (selectedLabel) {
+                      if (selectedLabel != null) {
+                        setState(() {
+                          _categoryController.text =
+                              categoryOptions[selectedLabel]!;
+                        });
+                      }
+                    },
+                  ),
                   Gap.h24,
                   _buildTextField(_subcategoryController, 'Подкатегория'),
                   Gap.h24,
@@ -104,8 +138,20 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
                   Gap.h24,
                   _buildTextField(_priceController, 'Цена', isNumber: true),
                   Gap.h24,
-                  _buildTextField(_descriptionController, 'Описание',
-                      maxLines: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Описание',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Color(0xff49454F),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      _buildTextField(_descriptionController, '', maxLines: 8),
+                    ],
+                  ),
                   Gap.h24,
                   AppButton(onPressed: _saveProduct, title: 'Сохранить'),
                 ],
@@ -125,6 +171,7 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
       maxLines: maxLines,
       decoration: InputDecoration(
         labelText: label,
+        hintStyle: TextStyle(color: Color(0xff49454F)),
         filled: true,
         fillColor: AppColors.addProductColor,
         border: OutlineInputBorder(
@@ -162,16 +209,13 @@ class ReceiptPainter extends CustomPainter {
 
     final path = Path();
 
-    // Верхняя часть с закруглениями
     path.moveTo(0, 20);
     path.quadraticBezierTo(0, 0, 20, 0);
     path.lineTo(size.width - 20, 0);
     path.quadraticBezierTo(size.width, 0, size.width, 20);
 
-    // Боковые стороны
     path.lineTo(size.width, size.height - 80);
 
-    // Волнистый низ
     const waveHeight = 50.0;
     const waveWidth = 80.0;
 
@@ -184,7 +228,6 @@ class ReceiptPainter extends CustomPainter {
       );
     }
 
-    // Закрываем контур
     path.lineTo(0, size.height - 40);
     path.close();
 

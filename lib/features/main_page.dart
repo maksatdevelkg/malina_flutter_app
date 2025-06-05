@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:malina_flutter_app/core/text_style/app_text_style.dart';
 import 'package:malina_flutter_app/core/theme/app_colors.dart';
 import 'package:malina_flutter_app/features/cart/presentation/cart_page.dart';
 import 'package:malina_flutter_app/features/cart/providers/cart_provider.dart';
 import 'package:malina_flutter_app/features/home/presentation/home_page.dart';
+import 'package:malina_flutter_app/features/profile/presentation/profile_page.dart';
 
 class MainPage extends ConsumerStatefulWidget {
   const MainPage({super.key});
@@ -22,7 +24,7 @@ class _MainPageState extends ConsumerState<MainPage> {
     const HomePage(),
     const Center(child: Text('Избранное')),
     const SizedBox.shrink(),
-    const Center(child: Text('Профиль')),
+    const ProfilePage(),
     const CartPage(),
   ];
 
@@ -35,36 +37,73 @@ class _MainPageState extends ConsumerState<MainPage> {
       ),
       bottomNavigationBar: SizedBox(
         height: 80,
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) {
-            if (index == 4) {
-              _toggleCartOverlay(ref);
-            } else if (index != 2) {
-              setState(() {
-                _currentIndex = index;
-              });
-            }
-          },
-          selectedItemColor: Colors.pink,
-          unselectedItemColor: Colors.grey,
-          type: BottomNavigationBarType.fixed,
-          items: [
-            const BottomNavigationBarItem(
-                icon: Icon(Icons.list), label: 'Лента'),
-            const BottomNavigationBarItem(
-                icon: Icon(Icons.favorite), label: 'Избранное'),
-            const BottomNavigationBarItem(icon: SizedBox.shrink(), label: ''),
-            const BottomNavigationBarItem(
-                icon: Icon(Icons.person), label: 'Профиль'),
-            BottomNavigationBarItem(
-              icon: Container(
-                key: _cartKey,
-                child: const Icon(Icons.shopping_cart),
+        child: Container(
+          decoration: BoxDecoration(color: Colors.white, boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 30)
+          ]),
+          child: BottomNavigationBar(
+            backgroundColor: Colors.white,
+            currentIndex: _currentIndex,
+            onTap: (index) {
+              if (index == 4) {
+                _toggleCartOverlay(ref);
+              } else if (index != 2) {
+                _removeOverlay();
+                setState(() {
+                  _currentIndex = index;
+                });
+              }
+            },
+            selectedItemColor: AppColors.buttonColor,
+            unselectedItemColor: AppColors.noActive,
+            selectedLabelStyle: AppTextStyle.s10w500,
+            unselectedLabelStyle: AppTextStyle.s10w500,
+            type: BottomNavigationBarType.fixed,
+            items: [
+              BottomNavigationBarItem(
+                icon: Image.asset(
+                  'assets/images/feed_icon.png',
+                  width: 25,
+                  height: 25,
+                  color: AppColors.noActive,
+                ),
+                activeIcon: Image.asset(
+                  'assets/images/feed_icon.png',
+                  width: 25,
+                  height: 25,
+                  color: AppColors.buttonColor,
+                ),
+                label: 'Лента',
               ),
-              label: 'Корзина',
-            ),
-          ],
+              const BottomNavigationBarItem(
+                icon: Icon(Icons.favorite),
+                label: 'Избранное',
+              ),
+              const BottomNavigationBarItem(icon: SizedBox.shrink(), label: ''),
+              BottomNavigationBarItem(
+                icon: Image.asset(
+                  'assets/images/profile_icon.png',
+                  width: 25,
+                  height: 25,
+                  color: AppColors.noActive,
+                ),
+                activeIcon: Image.asset(
+                  'assets/images/profile_icon.png',
+                  width: 25,
+                  height: 25,
+                  color: AppColors.buttonColor,
+                ),
+                label: 'Профиль',
+              ),
+              BottomNavigationBarItem(
+                icon: Container(
+                  key: _cartKey,
+                  child: const Icon(Icons.shopping_cart),
+                ),
+                label: 'Корзина',
+              ),
+            ],
+          ),
         ),
       ),
       floatingActionButton: Padding(
@@ -77,7 +116,11 @@ class _MainPageState extends ConsumerState<MainPage> {
             color: AppColors.buttonColor,
           ),
           child: IconButton(
-            icon: const Icon(Icons.qr_code_scanner, color: Colors.white),
+            icon: Image.asset(
+              'assets/images/scanner_icon.png',
+              width: 26,
+              height: 26,
+            ),
             onPressed: () {
               context.push('/qr-scanner');
             },
@@ -90,13 +133,14 @@ class _MainPageState extends ConsumerState<MainPage> {
 
   void _toggleCartOverlay(WidgetRef ref) {
     if (_cartOverlay != null) {
-      _cartOverlay?.remove();
-      _cartOverlay = null;
+      _removeOverlay();
       return;
     }
 
-    final RenderBox renderBox =
-        _cartKey.currentContext!.findRenderObject() as RenderBox;
+    final contextBox = _cartKey.currentContext;
+    if (contextBox == null) return;
+
+    final RenderBox renderBox = contextBox.findRenderObject() as RenderBox;
     final Offset position = renderBox.localToGlobal(Offset.zero);
 
     final cartItems = ref.read(cartProvider);
@@ -110,45 +154,40 @@ class _MainPageState extends ConsumerState<MainPage> {
     _cartOverlay = OverlayEntry(
       builder: (context) => GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: () {
-          _cartOverlay?.remove();
-          _cartOverlay = null;
-        },
+        onTap: _removeOverlay,
         child: Stack(
           children: [
             Positioned(
-              left: position.dx - 35 + renderBox.size.width / 2,
-              top: position.dy - 160,
-              child: Material(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(100),
+              left: position.dx + renderBox.size.width / 2 - 40,
+              top: position.dy - 175,
+              child: Container(
+                width: 80,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(40),
+                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     _buildCartCircleButton(
-                      icon: Icons.fastfood,
+                      imagePath: 'assets/images/food_icon.png',
                       label: 'Еда',
                       count: foodCount,
-                      onTap: () {
-                        _cartOverlay?.remove();
-                        _cartOverlay = null;
-                        setState(() {
-                          _currentIndex = 4;
-                        });
-                      },
+                      onTap: _navigateToCart,
                     ),
                     const SizedBox(height: 12),
                     _buildCartCircleButton(
-                      icon: Icons.spa,
+                      imagePath: 'assets/images/cosmetic_icon.png',
                       label: 'Бьюти',
                       count: beautyCount,
-                      onTap: () {
-                        _cartOverlay?.remove();
-                        _cartOverlay = null;
-                        setState(() {
-                          _currentIndex = 4;
-                        });
-                      },
+                      onTap: _navigateToCart,
+                    ),
+                    const SizedBox(height: 10),
+                    _buildCartCircleButton(
+                      icon: Icons.shopping_cart,
+                      label: 'Корзина',
+                      onTap: _navigateToCart,
                     ),
                   ],
                 ),
@@ -162,44 +201,84 @@ class _MainPageState extends ConsumerState<MainPage> {
     Overlay.of(context).insert(_cartOverlay!);
   }
 
+  void _removeOverlay() {
+    _cartOverlay?.remove();
+    _cartOverlay = null;
+  }
+
+  void _navigateToCart() {
+    _removeOverlay();
+    setState(() {
+      _currentIndex = 4;
+    });
+  }
+
   Widget _buildCartCircleButton({
-    required IconData icon,
     required String label,
     required VoidCallback onTap,
+    String? imagePath,
+    IconData? icon,
     int count = 0,
   }) {
+    final isCart = label.toLowerCase() == 'корзина';
+
     return GestureDetector(
       onTap: onTap,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           Container(
-            width: 70,
-            height: 70,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(35),
-              boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 5)],
-            ),
+            width: 64,
+            height: 64,
+            decoration: isCart
+                ? null
+                : BoxDecoration(
+                    color: Colors.grey.shade100,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 4,
+                      )
+                    ],
+                  ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, color: Colors.black),
+                if (imagePath != null)
+                  Image.asset(imagePath, width: 24, height: 24)
+                else if (icon != null)
+                  Icon(icon, size: 24, color: AppColors.noActive),
                 const SizedBox(height: 4),
-                Text(label,
-                    style: const TextStyle(fontSize: 12, color: Colors.black)),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: isCart ? 10 : 10,
+                    fontWeight: FontWeight.w500,
+                    color: isCart ? AppColors.noActive : Colors.black,
+                  ),
+                ),
               ],
             ),
           ),
           if (count > 0)
             Positioned(
-              right: 0,
               top: -4,
-              child: CircleAvatar(
-                radius: 10,
-                backgroundColor: Colors.red,
-                child: Text('$count',
-                    style: const TextStyle(fontSize: 12, color: Colors.white)),
+              right: -4,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                decoration: const BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+                child: Text(
+                  '$count',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
         ],

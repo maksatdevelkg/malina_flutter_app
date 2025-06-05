@@ -29,6 +29,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      theme: ThemeData(
+        fontFamily: 'WixMadeDisplay',
+        
+      ),
       routerConfig: router,
       debugShowCheckedModeBanner: false,
       

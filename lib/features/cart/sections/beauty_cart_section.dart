@@ -62,44 +62,11 @@ class _BeautyCartSectionState extends ConsumerState<BeautyCartSection> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(subcategory,
-                      style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   ...items.map((item) => CartItemCard(item: item)).toList(),
                 ],
               );
             }).toList(),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Container(
-            height: 50,
-            decoration: BoxDecoration(
-              color: AppColors.buttonColor,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Всего',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  '${filteredItems.fold(0, (sum, item) => sum + item.price * item.quantity)} C',
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
           ),
         ),
       ],

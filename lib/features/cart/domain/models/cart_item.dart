@@ -50,7 +50,7 @@ class CartItem {
     };
   }
 
-  /// ✅ Для загрузки из shared_preferences
+  
   factory CartItem.fromJson(Map<String, dynamic> json) {
     return CartItem(
       id: json['id'],

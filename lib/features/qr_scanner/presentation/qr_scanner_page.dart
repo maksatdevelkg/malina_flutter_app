@@ -270,7 +270,7 @@ class _ScannerOverlayPainter extends CustomPainter {
     final cutOutRect =
         Rect.fromCenter(center: center, width: cutOutSize, height: cutOutSize);
 
-    // Затемнение
+    
     paint.color = overlayColor;
     final fullRect = Offset.zero & size;
     canvas.drawPath(
@@ -282,7 +282,7 @@ class _ScannerOverlayPainter extends CustomPainter {
       paint,
     );
 
-    // Углы рамки
+    
     paint.color = borderColor;
     paint.strokeWidth = borderWidth;
     paint.style = PaintingStyle.stroke;
@@ -292,23 +292,23 @@ class _ScannerOverlayPainter extends CustomPainter {
     final double right = cutOutRect.right;
     final double bottom = cutOutRect.bottom;
 
-    // Левая верхняя
+    
     canvas.drawLine(Offset(left, top), Offset(left + borderLength, top), paint);
     canvas.drawLine(Offset(left, top), Offset(left, top + borderLength), paint);
 
-    // Правая верхняя
+    
     canvas.drawLine(
         Offset(right, top), Offset(right - borderLength, top), paint);
     canvas.drawLine(
         Offset(right, top), Offset(right, top + borderLength), paint);
 
-    // Левая нижняя
+    
     canvas.drawLine(
         Offset(left, bottom), Offset(left + borderLength, bottom), paint);
     canvas.drawLine(
         Offset(left, bottom), Offset(left, bottom - borderLength), paint);
 
-    // Правая нижняя
+    
     canvas.drawLine(
         Offset(right, bottom), Offset(right - borderLength, bottom), paint);
     canvas.drawLine(
