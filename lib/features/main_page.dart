@@ -3,8 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:malina_flutter_app/core/text_style/app_text_style.dart';
 import 'package:malina_flutter_app/core/theme/app_colors.dart';
+import 'package:malina_flutter_app/features/auth/providers/auth_provider.dart';
 import 'package:malina_flutter_app/features/cart/presentation/cart_page.dart';
-import 'package:malina_flutter_app/features/cart/providers/cart_provider.dart';
+import 'package:malina_flutter_app/features/cart/riverpod/riverpod.dart';
 import 'package:malina_flutter_app/features/home/presentation/home_page.dart';
 import 'package:malina_flutter_app/features/profile/presentation/profile_page.dart';
 
@@ -18,6 +19,7 @@ class MainPage extends ConsumerStatefulWidget {
 class _MainPageState extends ConsumerState<MainPage> {
   int _currentIndex = 0;
   final GlobalKey _cartKey = GlobalKey();
+  bool _isScannerActive = false;
   OverlayEntry? _cartOverlay;
 
   final List<Widget> _pages = [
@@ -116,13 +118,21 @@ class _MainPageState extends ConsumerState<MainPage> {
             color: AppColors.buttonColor,
           ),
           child: IconButton(
-            icon: Image.asset(
-              'assets/images/scanner_icon.png',
-              width: 26,
-              height: 26,
-            ),
+            icon: _currentIndex == 0
+                ? Image.asset(
+                    'assets/images/scanner_icon.png',
+                    width: 26,
+                    height: 26,
+                  )
+                : Image.asset('assets/images/back_icon.png'),
             onPressed: () {
-              context.push('/qr-scanner');
+              if (_currentIndex == 0) {
+                context.push('/qr-scanner');
+              } else {
+                setState(() {
+                  _currentIndex = 0;
+                });
+              }
             },
           ),
         ),
@@ -132,6 +142,10 @@ class _MainPageState extends ConsumerState<MainPage> {
   }
 
   void _toggleCartOverlay(WidgetRef ref) {
+    final email = ref.read(localStorageProvider).getCurrentEmail();
+
+    if (email == null) return;
+
     if (_cartOverlay != null) {
       _removeOverlay();
       return;
@@ -143,7 +157,8 @@ class _MainPageState extends ConsumerState<MainPage> {
     final RenderBox renderBox = contextBox.findRenderObject() as RenderBox;
     final Offset position = renderBox.localToGlobal(Offset.zero);
 
-    final cartItems = ref.read(cartProvider);
+    final cartItems = ref.read(cartProvider(email));
+
     final foodCount = cartItems
         .where((item) => item.category.toLowerCase() == 'food')
         .fold<int>(0, (sum, item) => sum + item.quantity);
@@ -268,7 +283,7 @@ class _MainPageState extends ConsumerState<MainPage> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                 decoration: const BoxDecoration(
-                  color: Colors.red,
+                  color: AppColors.buttonColor,
                   shape: BoxShape.circle,
                 ),
                 child: Text(

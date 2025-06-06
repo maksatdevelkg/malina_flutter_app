@@ -1,53 +1,40 @@
-// cart_provider.dart
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:malina_flutter_app/features/cart/domain/models/cart_item.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-final cartProvider = StateNotifierProvider<CartNotifier, List<CartItem>>((ref) {
-  return CartNotifier();
-});
-
 class CartNotifier extends StateNotifier<List<CartItem>> {
-  static const _storageKey = 'cart_items';
+  final String _email;
 
-  CartNotifier() : super([]) {
+  CartNotifier(this._email) : super([]) {
     _loadCart();
   }
 
-  void loadInitialItemsIfEmpty(List<CartItem> items) {
-  if (state.isEmpty) {
-    state = [...items];
-    _saveCart();
-  }
-}
-
-  Future<void> _loadCart() async {
+  void _loadCart() async {
     final prefs = await SharedPreferences.getInstance();
-    final data = prefs.getString(_storageKey);
-    if (data != null) {
-      final decoded = jsonDecode(data) as List<dynamic>;
+    final json = prefs.getString('cart_$_email');
+    if (json != null) {
+      final decoded = jsonDecode(json) as List;
       state = decoded.map((e) => CartItem.fromJson(e)).toList();
     }
   }
 
+
   Future<void> _saveCart() async {
     final prefs = await SharedPreferences.getInstance();
     final encoded = jsonEncode(state.map((e) => e.toJson()).toList());
-    await prefs.setString(_storageKey, encoded);
+    await prefs.setString('cart_$_email', encoded);
   }
 
   void addItem(CartItem item) {
     final index = state.indexWhere((e) =>
-      e.name == item.name &&
-      e.category == item.category &&
-      e.subcategory == item.subcategory);
+        e.name == item.name &&
+        e.category == item.category &&
+        e.subcategory == item.subcategory);
 
     if (index != -1) {
-      final updatedItem =
-          state[index].copyWith(quantity: state[index].quantity + 1);
-      state = [...state]..[index] = updatedItem;
+      final updated = state[index].copyWith(quantity: state[index].quantity + 1);
+      state = [...state]..[index] = updated;
     } else {
       state = [...state, item];
     }
@@ -62,9 +49,8 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
   void incrementQuantity(String id) {
     final index = state.indexWhere((e) => e.id == id);
     if (index != -1) {
-      final updatedItem =
-          state[index].copyWith(quantity: state[index].quantity + 1);
-      state = [...state]..[index] = updatedItem;
+      final updated = state[index].copyWith(quantity: state[index].quantity + 1);
+      state = [...state]..[index] = updated;
       _saveCart();
     }
   }
@@ -73,11 +59,11 @@ class CartNotifier extends StateNotifier<List<CartItem>> {
     final index = state.indexWhere((e) => e.id == id);
     if (index != -1) {
       if (state[index].quantity > 1) {
-        final updatedItem =
-            state[index].copyWith(quantity: state[index].quantity - 1);
-        state = [...state]..[index] = updatedItem;
+        final updated = state[index].copyWith(quantity: state[index].quantity - 1);
+        state = [...state]..[index] = updated;
       } else {
         removeItem(id);
+        return;
       }
       _saveCart();
     }

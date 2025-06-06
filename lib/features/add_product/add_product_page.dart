@@ -5,9 +5,11 @@ import 'package:malina_flutter_app/core/text_style/app_text_style.dart';
 import 'package:malina_flutter_app/core/theme/app_colors.dart';
 import 'package:malina_flutter_app/core/theme/gap.dart';
 import 'package:malina_flutter_app/features/cart/domain/models/cart_item.dart';
-import 'package:malina_flutter_app/features/cart/providers/cart_provider.dart';
+import 'package:malina_flutter_app/features/cart/riverpod/riverpod.dart';
 import 'package:malina_flutter_app/features/qr_scanner/presentation/qr_scanner_page.dart';
 import 'package:uuid/uuid.dart';
+import 'package:malina_flutter_app/features/auth/providers/auth_provider.dart';
+
 
 class AddProductPage extends ConsumerStatefulWidget {
   final String initialCategory;
@@ -37,23 +39,33 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
     _categoryController = TextEditingController(text: widget.initialCategory);
   }
 
-  void _saveProduct() {
-    if (_formKey.currentState!.validate()) {
-      final newItem = CartItem(
-        id: const Uuid().v4(),
-        name: _nameController.text.trim(),
-        category: _categoryController.text.trim(),
-        subcategory: _subcategoryController.text.trim(),
-        price: int.tryParse(_priceController.text.trim()) ?? 0,
-        quantity: 1,
-        description: _descriptionController.text.trim(),
-        imageUrl: null,
-      );
+ Future<void> _saveProduct() async {
+  if (_formKey.currentState!.validate()) {
+    final newItem = CartItem(
+      id: const Uuid().v4(),
+      name: _nameController.text.trim(),
+      category: _categoryController.text.trim(),
+      subcategory: _subcategoryController.text.trim(),
+      price: int.tryParse(_priceController.text.trim()) ?? 0,
+      quantity: 1,
+      description: _descriptionController.text.trim(),
+      imageUrl: null,
+    );
 
-      ref.read(cartProvider.notifier).addItem(newItem);
+    final storage = ref.read(localStorageProvider);
+    final email = await storage.getEmail();
+
+    if (email != null) {
+      ref.read(cartProvider(email).notifier).addItem(newItem, email);
       Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Пользователь не найден')),
+      );
     }
   }
+}
+
 
   @override
   void dispose() {
@@ -70,7 +82,7 @@ class _AddProductPageState extends ConsumerState<AddProductPage> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new), // ваша кастомная иконка
+          icon: Icon(Icons.arrow_back_ios_new), 
           onPressed: () => Navigator.pop(context),
         ),
         title: Text('Добавить', style: AppTextStyle.s20w700),

@@ -1,64 +1,78 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:malina_flutter_app/common/app_button.dart';
+import 'package:malina_flutter_app/core/text_style/app_text_style.dart';
+import 'package:malina_flutter_app/features/auth/providers/auth_provider.dart';
+import 'package:malina_flutter_app/features/auth/widgets/debug_storage_button.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
 
-  Future<void> _clearUserData(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-    context.go('/login');
+  Future<void> _logout(BuildContext context, WidgetRef ref) async {
+    final storage = ref.read(localStorageProvider);
+    await storage.clearUserData();
+    if (context.mounted) {
+      context.go('/login');
+    }
+  }
+
+  Future<void> _deleteAccount(BuildContext context, WidgetRef ref) async {
+    final storage = ref.read(localStorageProvider);
+    await storage.clearUserData();
+    if (context.mounted) {
+      context.go('/login');
+    }
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new), // ваша кастомная иконка
+          icon: Icon(Icons.arrow_back_ios_new),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Профиль'),
+        title: Text(
+          'Профиль',
+          style: AppTextStyle.s20w700,
+        ),
         actions: [
-          TextButton(
-            onPressed: () => context.go('/login'),
-            child: const Text(
-              'Выйти',
-              style: TextStyle(color: Colors.black),
+          GestureDetector(
+            onTap: () async {
+              final storage = ref.read(localStorageProvider);
+              await storage.logout();
+              context.go('/login');
+            },
+            child: Padding(
+              padding: const EdgeInsets.only(right: 15),
+              child: Text('Выйти', style: AppTextStyle.s14w400),
             ),
-          )
+          ),
         ],
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Padding(
-            padding: EdgeInsets.all(20),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text('random@mail.abc', style: TextStyle(fontSize: 18)),
+          // DebugStorageButton(),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: FutureBuilder<String?>(
+              future: Future.value(ref.read(localStorageProvider).getEmail()),
+              builder: (context, snapshot) {
+                final email = snapshot.data ?? 'Гость';
+                return Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(email, style: AppTextStyle.s20w700),
+                );
+              },
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-            child: SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFF93E66),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                onPressed: () => _clearUserData(context),
-                child: const Text(
-                  'Удалить',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
-              ),
-            ),
+            padding: const EdgeInsets.all(15.0),
+            child: AppButton(
+                onPressed: () => _deleteAccount(context, ref),
+                title: 'Удалить'),
           )
         ],
       ),

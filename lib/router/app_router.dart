@@ -13,32 +13,48 @@ final router = GoRouter(
       builder: (context, state) => const LoginPage(),
     ),
     GoRoute(
+      path: '/login',
+      builder: (context, state) => const LoginPage(),
+    ),
+    GoRoute(
       path: '/home',
       builder: (context, state) => const HomePage(),
     ),
-
     GoRoute(
-  path: '/main',
-  builder: (context, state) => const MainPage(),
-),
-
-GoRoute(
-  path: '/add-product/:category',
-  builder: (context, state) {
-    final category = state.pathParameters['category'] ?? 'Еда';
-    return AddProductPage(initialCategory: category);
-  },
-),
-
-GoRoute(
-  path: '/qr-scanner',
-  builder: (context, state) => const QrScannerPage(),
-),
-
-GoRoute(
+      path: '/main',
+      builder: (context, state) => const MainPage(),
+    ),
+    GoRoute(
+      path: '/add-product/:category',
+      builder: (context, state) {
+        final category = state.pathParameters['category'] ?? 'Еда';
+        return AddProductPage(initialCategory: category);
+      },
+    ),
+    GoRoute(
+      path: '/qr-scanner',
+      builder: (context, state) => const QrScannerPage(),
+    ),
+    GoRoute(
       path: '/profile',
       builder: (context, state) => const ProfilePage(),
     ),
-
   ],
+
+  
 );
+
+GoRouter createRouter(String initialRoute) {
+  return GoRouter(
+    initialLocation: initialRoute,
+    routes: [
+      GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
+      GoRoute(path: '/main', builder: (context, state) => const MainPage()),
+      GoRoute(
+          path: '/qr-scanner',
+          builder: (context, state) => const QrScannerPage()),
+    ],
+  );
+
+  
+}

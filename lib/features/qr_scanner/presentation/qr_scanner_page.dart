@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:malina_flutter_app/features/auth/providers/auth_provider.dart';
+import 'package:malina_flutter_app/features/cart/riverpod/riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:malina_flutter_app/features/cart/domain/models/cart_item.dart';
-import 'package:malina_flutter_app/features/cart/providers/cart_provider.dart';
+
 
 class QrScannerPage extends ConsumerStatefulWidget {
   const QrScannerPage({super.key});
@@ -187,11 +189,14 @@ class _QrScannerPageState extends ConsumerState<QrScannerPage> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        onPressed: () {
-                          if (scannedItem != null) {
+                        onPressed: () async {
+                          final email =
+                              await ref.read(localStorageProvider).getEmail();
+                          if (scannedItem != null && email != null) {
                             ref
-                                .read(cartProvider.notifier)
-                                .addItem(scannedItem!);
+                                .read(cartProvider(email).notifier)
+                                .addItem(scannedItem!, email);
+
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                   content: Text(
@@ -270,7 +275,6 @@ class _ScannerOverlayPainter extends CustomPainter {
     final cutOutRect =
         Rect.fromCenter(center: center, width: cutOutSize, height: cutOutSize);
 
-    
     paint.color = overlayColor;
     final fullRect = Offset.zero & size;
     canvas.drawPath(
@@ -282,7 +286,6 @@ class _ScannerOverlayPainter extends CustomPainter {
       paint,
     );
 
-    
     paint.color = borderColor;
     paint.strokeWidth = borderWidth;
     paint.style = PaintingStyle.stroke;
@@ -292,23 +295,19 @@ class _ScannerOverlayPainter extends CustomPainter {
     final double right = cutOutRect.right;
     final double bottom = cutOutRect.bottom;
 
-    
     canvas.drawLine(Offset(left, top), Offset(left + borderLength, top), paint);
     canvas.drawLine(Offset(left, top), Offset(left, top + borderLength), paint);
 
-    
     canvas.drawLine(
         Offset(right, top), Offset(right - borderLength, top), paint);
     canvas.drawLine(
         Offset(right, top), Offset(right, top + borderLength), paint);
 
-    
     canvas.drawLine(
         Offset(left, bottom), Offset(left + borderLength, bottom), paint);
     canvas.drawLine(
         Offset(left, bottom), Offset(left, bottom - borderLength), paint);
 
-    
     canvas.drawLine(
         Offset(right, bottom), Offset(right - borderLength, bottom), paint);
     canvas.drawLine(

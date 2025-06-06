@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:malina_flutter_app/common/app_button.dart';
+
 import 'package:malina_flutter_app/core/text_style/app_text_style.dart';
 import 'package:malina_flutter_app/core/theme/app_colors.dart';
 import 'package:malina_flutter_app/features/cart/domain/models/cart_item.dart';
-import 'package:malina_flutter_app/features/cart/providers/cart_provider.dart';
+
+
+import '../riverpod/riverpod.dart';
 
 class CartItemCard extends ConsumerWidget {
   final CartItem item;
+  final String email;
 
-  const CartItemCard({super.key, required this.item});
+  const CartItemCard({
+    super.key,
+    required this.item,
+    required this.email,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -57,8 +64,7 @@ class CartItemCard extends ConsumerWidget {
                         : null,
                   ),
                   child: item.imageUrl == null
-                      ? const Icon(Icons.image_not_supported,
-                          color: Colors.grey)
+                      ? const Icon(Icons.image_not_supported, color: Colors.grey)
                       : null,
                 ),
                 const SizedBox(width: 16),
@@ -101,9 +107,7 @@ class CartItemCard extends ConsumerWidget {
                         children: [
                           _quantityButton(
                             icon: Icons.remove,
-                            onTap: () => ref
-                                .read(cartProvider.notifier)
-                                .decrementQuantity(item.id),
+                            onTap: () => ref.read(cartProvider(email).notifier).decrement(item)
                           ),
                           const SizedBox(width: 10),
                           Text('${item.quantity}',
@@ -111,10 +115,7 @@ class CartItemCard extends ConsumerWidget {
                           const SizedBox(width: 10),
                           _quantityButton(
                             icon: Icons.add,
-                            onTap: () => ref
-                                .read(cartProvider.notifier)
-                                .incrementQuantity(item.id),
-                          ),
+                           onTap: () => ref.read(cartProvider(email).notifier).decrement(item),),
                           const Spacer(),
                           IconButton(
                             icon: Image.asset(
@@ -122,9 +123,8 @@ class CartItemCard extends ConsumerWidget {
                               width: 35,
                               height: 35,
                             ),
-                            onPressed: () => ref
-                                .read(cartProvider.notifier)
-                                .removeItem(item.id),
+                            onPressed: () => ref.read(cartProvider(email).notifier).removeItem(item),
+
                           ),
                         ],
                       ),
@@ -173,21 +173,17 @@ class CartItemCard extends ConsumerWidget {
               height: 60,
               width: 310,
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  color: AppColors.buttonColor),
+                borderRadius: BorderRadius.circular(12),
+                color: AppColors.buttonColor,
+              ),
               child: Row(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 20),
-                    child: Text(
-                      'Всего',
-                      style:
-                          AppTextStyle.s16w500!.copyWith(color: Colors.white),
-                    ),
+                  const Padding(
+                    padding: EdgeInsets.only(left: 20),
+                    child: Text('Всего',
+                        style: TextStyle(color: Colors.white, fontSize: 16)),
                   ),
-                  SizedBox(
-                    width: 160,
-                  ),
+                  const Spacer(),
                   Padding(
                     padding: const EdgeInsets.only(right: 20),
                     child: Text.rich(
@@ -201,9 +197,10 @@ class CartItemCard extends ConsumerWidget {
                           TextSpan(
                             text: 'С',
                             style: AppTextStyle.s16w500!.copyWith(
-                                color: Colors.white,
-                                decoration: TextDecoration.underline,
-                                decorationColor: Colors.white),
+                              color: Colors.white,
+                              decoration: TextDecoration.underline,
+                              decorationColor: Colors.white,
+                            ),
                           ),
                         ],
                       ),
@@ -218,8 +215,10 @@ class CartItemCard extends ConsumerWidget {
     );
   }
 
-  Widget _quantityButton(
-      {required IconData icon, required VoidCallback onTap}) {
+  Widget _quantityButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
     return Container(
       width: 35,
       height: 35,
